@@ -1,45 +1,48 @@
+import { and, contains, or, pipe, prop } from 'ramda';
+import { defaultWhen, isTrue, isUndefined } from 'ramda-adjunct';
 import { TypeOptions } from 'type-graphql/dist/decorators/types';
+
+const isNullableArray = (
+  typeOptions: TypeOptions,
+  nullableByDefault: boolean
+) =>
+  or(
+    contains(prop('nullable', typeOptions), ['items', 'itemsAndList']),
+    and(isUndefined(prop('nullable', typeOptions)), isTrue(nullableByDefault))
+  );
 
 export const wrapWithTypeOptions = (
   name: string,
   typeOptions: TypeOptions,
   nullableByDefault = false
-): string => {
-  if (typeOptions.array) {
-    const isNullableArray =
-      typeOptions.nullable === 'items' ||
-      typeOptions.nullable === 'itemsAndList' ||
-      (typeOptions.nullable === undefined && nullableByDefault === true);
+): string =>
+  pipe<string, string>(
+    () =>
+      defaultWhen(
+        () => isTrue(typeOptions.array),
+        wrapTypeInNestedList(
+          name,
+          typeOptions.arrayDepth || 0,
+          isNullableArray(typeOptions, nullableByDefault)
+        ),
+        name
+      ),
+    (name) =>
+      typeOptions.defaultValue === undefined &&
+      (typeOptions.nullable === false ||
+        (typeOptions.nullable === undefined && nullableByDefault === false) ||
+        typeOptions.nullable === 'items')
+        ? name + '!'
+        : name
+  )();
 
-    return wrapTypeInNestedList(
-      name,
-      typeOptions.arrayDepth || 0,
-      isNullableArray
-    );
-  }
-
-  if (
-    typeOptions.defaultValue === undefined &&
-    (typeOptions.nullable === false ||
-      (typeOptions.nullable === undefined && nullableByDefault === false) ||
-      typeOptions.nullable === 'items')
-  ) {
-    return name + '!';
-  }
-
-  return name;
-};
-
-function wrapTypeInNestedList(
+const wrapTypeInNestedList = (
   name: string,
   depth: number,
   nullable: boolean
-): string {
-  if (depth === 0) {
-    return name;
-  }
-
-  return `[${wrapTypeInNestedList(name, depth - 1, nullable)}]${
-    nullable ? '' : '!'
-  }`;
-}
+): string =>
+  depth === 0
+    ? name
+    : `[${wrapTypeInNestedList(name, depth - 1, nullable)}${
+        nullable ? '' : '!'
+      }]`;
