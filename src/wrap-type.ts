@@ -1,14 +1,46 @@
-import { and, contains, or, pipe, prop } from 'ramda';
-import { defaultWhen, isTrue, isUndefined } from 'ramda-adjunct';
+import { and, contains, equals, or, pipe, when } from 'ramda';
+import {
+  concatRight,
+  defaultWhen,
+  isFalse,
+  isTrue,
+  isUndefined,
+} from 'ramda-adjunct';
 import { TypeOptions } from 'type-graphql/dist/decorators/types';
 
 const isNullableArray = (
-  typeOptions: TypeOptions,
+  { nullable }: TypeOptions,
   nullableByDefault: boolean
-) =>
+): boolean =>
   or(
-    contains(prop('nullable', typeOptions), ['items', 'itemsAndList']),
-    and(isUndefined(prop('nullable', typeOptions)), isTrue(nullableByDefault))
+    contains(nullable, ['items', 'itemsAndList']),
+    and(isUndefined(nullable), isTrue(nullableByDefault))
+  );
+
+const wrapTypeInNestedList = (
+  name: string,
+  depth: number,
+  nullable: boolean
+): string =>
+  depth === 0
+    ? name
+    : `[${wrapTypeInNestedList(name, depth - 1, nullable)}${
+        nullable ? '' : '!'
+      }]`;
+
+const isRequiredType = (
+  { defaultValue, nullable }: TypeOptions,
+  nullableByDefault: boolean
+): boolean =>
+  and(
+    isUndefined(defaultValue),
+    or(
+      isFalse(nullable),
+      or(
+        and(isUndefined(nullable), isFalse(nullableByDefault)),
+        equals(nullable, 'items')
+      )
+    )
   );
 
 export const wrapWithTypeOptions = (
@@ -27,22 +59,5 @@ export const wrapWithTypeOptions = (
         ),
         name
       ),
-    (name) =>
-      typeOptions.defaultValue === undefined &&
-      (typeOptions.nullable === false ||
-        (typeOptions.nullable === undefined && nullableByDefault === false) ||
-        typeOptions.nullable === 'items')
-        ? name + '!'
-        : name
+    when(() => isRequiredType(typeOptions, nullableByDefault), concatRight('!'))
   )();
-
-const wrapTypeInNestedList = (
-  name: string,
-  depth: number,
-  nullable: boolean
-): string =>
-  depth === 0
-    ? name
-    : `[${wrapTypeInNestedList(name, depth - 1, nullable)}${
-        nullable ? '' : '!'
-      }]`;
