@@ -17,5 +17,5 @@
     "experimentalDecorators": true,
     "declaration": true
   },
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["dist", "node_modules", "**/*.spec.ts"]
 }

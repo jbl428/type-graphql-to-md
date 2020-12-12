@@ -1,1 +1,1 @@
-export * from './';
+export { exportToMarkdown } from './markdown';

@@ -1,2 +1,4 @@
 spec.md
 coverage
+src
+.travis.yml
