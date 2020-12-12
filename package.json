@@ -1,8 +1,9 @@
 {
   "name": "type-graphql-to-md",
   "version": "1.0.0",
-  "description": "Make markdown for type graphql spec",
-  "main": "src/index.ts",
+  "description": "Make markdown for type-graphql spec",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/jbl428/type-graphql-to-md.git",
   "author": "jbl428 <sonjeabin@gmail.com>",
   "license": "MIT",
@@ -10,6 +11,7 @@
   "devDependencies": {
     "@types/faker": "^5.1.5",
     "@types/jest": "^26.0.16",
+    "@types/json2md": "^1.5.0",
     "@types/ramda": "^0.27.32",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
@@ -25,12 +27,14 @@
   "dependencies": {
     "class-validator": "^0.12.2",
     "graphql": "^15.4.0",
+    "json2md": "^1.9.1",
     "ramda": "^0.27.1",
     "ramda-adjunct": "^2.28.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1"
   },
   "scripts": {
+    "build": "tsc",
     "test": "jest"
   }
 }
