@@ -1,6 +1,7 @@
 import { pipe, prop } from 'ramda';
 import { TypeOptions, TypeValue } from 'type-graphql/dist/decorators/types';
 import { BuildContext } from 'type-graphql/dist/schema/build-context';
+
 import { getScalaTypeText } from './get-scalar-type-text';
 import { metadata } from './metadata';
 import { wrapWithTypeOptions } from './wrap-type';

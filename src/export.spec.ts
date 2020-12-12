@@ -15,6 +15,7 @@ import {
   Query,
   Resolver,
 } from 'type-graphql';
+
 import { APIExport, exportAPI } from './export';
 
 describe('exportAPI  ', () => {

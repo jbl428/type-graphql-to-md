@@ -10,6 +10,7 @@ import {
   Resolver,
 } from 'type-graphql';
 import { ArgParamMetadata } from 'type-graphql/dist/metadata/definitions';
+
 import { getOutputType } from './get-types';
 import { metadata } from './metadata';
 

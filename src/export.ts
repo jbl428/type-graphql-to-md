@@ -7,6 +7,7 @@ import {
   ParamMetadata,
   ResolverMetadata,
 } from 'type-graphql/dist/metadata/definitions';
+
 import { getArgType, getOutputType } from './get-types';
 import { metadata } from './metadata';
 

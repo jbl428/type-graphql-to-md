@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { exportToMarkdown } from 'src/markdown';
 import {
   Arg,
   Args,
@@ -16,6 +15,8 @@ import {
   Query,
   Resolver,
 } from 'type-graphql';
+
+import { exportToMarkdown } from './markdown';
 
 describe('exportAPI  ', () => {
   beforeAll(async () => {

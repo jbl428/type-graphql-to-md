@@ -1,6 +1,7 @@
 import { random } from 'faker';
 import { GraphQLScalarType } from 'graphql';
 import { BuildContext } from 'type-graphql/dist/schema/build-context';
+
 import { getScalaTypeText } from './get-scalar-type-text';
 
 describe('getScalaTypeText ', () => {
