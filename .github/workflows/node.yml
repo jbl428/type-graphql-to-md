@@ -29,9 +29,5 @@ jobs:
         uses: actions/setup-node@v2.1.5
         with:
           node-version: 14
-          
-      - name: Install dependencies
       - run: yarn install
-      
-      - name: Run test
       - run: yarn test
