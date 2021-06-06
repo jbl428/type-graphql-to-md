@@ -1,7 +1,7 @@
 # type-graphql-to-md
 
 [![npm version](https://badge.fury.io/js/type-graphql-to-md.svg)](https://badge.fury.io/js/type-graphql-to-md)
-[![Build Status](https://travis-ci.org/jbl428/type-graphql-to-md.svg?branch=master)](https://travis-ci.org/jbl428/type-graphql-to-md)
+![action workflow](https://github.com/jbl428/type-graphql-to-md/actions/workflows/node.yml/badge.svg)
 
 Make a markdown file for type-graphql spec
 
