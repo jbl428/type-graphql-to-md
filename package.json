@@ -1,6 +1,6 @@
 {
   "name": "type-graphql-to-md",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Make markdown for type-graphql spec",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
