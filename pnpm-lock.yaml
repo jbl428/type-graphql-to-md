@@ -12,6 +12,7 @@ specifiers:
   eslint-config-prettier: ^8.3.0
   eslint-plugin-prettier: ^3.4.0
   faker: ^5.5.3
+  fp-ts: ^2.10.5
   graphql: ^15.5.0
   jest: ^27.0.4
   json2md: ^1.10.0
@@ -25,6 +26,7 @@ specifiers:
 
 dependencies:
   class-validator: 0.13.1
+  fp-ts: 2.10.5
   graphql: 15.5.0
   json2md: 1.10.0
   ramda: 0.27.1
@@ -1658,6 +1660,10 @@ packages:
       combined-stream: 1.0.8
       mime-types: 2.1.31
     dev: true
+
+  /fp-ts/2.10.5:
+    resolution: {integrity: sha512-X2KfTIV0cxIk3d7/2Pvp/pxL/xr2MV1WooyEzKtTWYSc1+52VF4YzjBTXqeOlSiZsPCxIBpDGfT9Dyo7WEY0DQ==}
+    dev: false
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=}
