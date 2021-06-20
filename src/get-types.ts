@@ -6,8 +6,11 @@ import { getScalaTypeText } from './get-scalar-type-text';
 import { metadata } from './metadata';
 import { wrapWithTypeOptions } from './wrap-type';
 
-const makePredicate = (type: TypeValue) => <T>(name: keyof T) => (obj: T) =>
-  (obj[name] as unknown) === type;
+const makePredicate =
+  (type: TypeValue) =>
+  <T>(name: keyof T) =>
+  (obj: T) =>
+    (obj[name] as unknown) === type;
 
 const getOtherOutputType: (type: TypeValue) => string = pipe(
   makePredicate,

@@ -1,8 +1,11 @@
 import { promises } from 'fs';
 import json2md from 'json2md';
-import { tuple, taskEither } from 'fp-ts';
+import { tuple, taskEither, array, option } from 'fp-ts';
 import { pipe } from 'fp-ts/function';
 import { log } from 'fp-ts/Console';
+import { fromPredicate } from 'fp-ts/Option';
+import { isEmpty } from 'fp-ts/Array';
+import { concat } from 'ramda';
 
 import { APIExport, exportAPI } from './export';
 import { metadata } from './metadata';
@@ -47,31 +50,32 @@ const makeMarkdown = (title: string): string =>
     json2md
   );
 
-const apiToMd = (api: APIExport): json2md.DataObject[] => {
-  const objects: json2md.DataObject[] = [
-    { h2: api.name },
-    {
-      ul: ['output type: ' + api.outputType, 'description: ' + api.description],
-    },
-  ];
-
-  if (api.deprecatedReason) {
-    objects[1].ul?.push('deprecated: ' + api.deprecatedReason);
-  }
-
-  if (api.args.length > 0) {
-    objects[1].ul?.push('arguments');
-    objects.push({
-      table: {
-        headers: Object.keys(api.args[0]),
-        rows: api.args.map(({ name, type, description }) => ({
-          name,
-          type,
-          description,
-        })),
-      },
-    });
-  }
-
-  return objects;
-};
+const apiToMd = (api: APIExport): json2md.DataObject[] => [
+  { h2: api.name },
+  {
+    ul: array.compact([
+      option.of('output type: ' + api.outputType),
+      option.of('description: ' + api.description),
+      pipe(
+        api.deprecatedReason,
+        fromPredicate((reason) => !!reason),
+        option.map(concat('deprecated: '))
+      ),
+      isEmpty(api.args) ? option.none : option.of('arguments'),
+    ]),
+  },
+  isEmpty(api.args)
+    ? []
+    : [
+        {
+          table: {
+            headers: Object.keys(api.args[0]),
+            rows: api.args.map(({ name, type, description }) => ({
+              name,
+              type,
+              description,
+            })),
+          },
+        },
+      ],
+];

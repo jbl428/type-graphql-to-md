@@ -1,12 +1,13 @@
-import { chain, filter, find, map, pipe } from 'ramda';
 import {
   ArgParamMetadata,
   ArgsParamMetadata,
-  ClassMetadata,
-  FieldMetadata,
   ParamMetadata,
   ResolverMetadata,
 } from 'type-graphql/dist/metadata/definitions';
+import { pipe } from 'fp-ts/function';
+import { array, option, readonlyArray } from 'fp-ts';
+import { fromNullable } from 'fp-ts/Option';
+import { chain } from 'ramda';
 
 import { getArgType, getOutputType } from './get-types';
 import { metadata } from './metadata';
@@ -25,67 +26,73 @@ interface ArgExport {
   description: string;
 }
 
-export const exportAPI = pipe(
-  filter<ResolverMetadata, 'array'>(
-    (handler) => !handler.resolverClassMetadata?.isAbstract
-  ),
-  map<ResolverMetadata, APIExport>((handler) => ({
-    name: handler.schemaName,
-    outputType: getOutputType(
-      handler.getReturnType(),
-      handler.returnTypeOptions
-    ),
-    description: handler.description || '',
-    args: getArgExports(handler.params || []),
-    deprecatedReason: handler.deprecationReason || '',
-  }))
-);
-
-export const getArgExports = chain<ParamMetadata, ArgExport>((param) =>
-  param.kind === 'arg'
-    ? fromArgParamMetadata(param)
-    : param.kind === 'args'
-    ? fromArgsParamMetadata(param)
-    : []
-);
-
-const fromArgParamMetadata = (param: ArgParamMetadata): ArgExport[] =>
+export const exportAPI = (
+  metadata: readonly ResolverMetadata[]
+): readonly APIExport[] =>
   pipe(
-    () =>
-      find<ClassMetadata>(
-        (inputType) => inputType.target === param.getType(),
-        metadata.inputTypes
+    metadata,
+    readonlyArray.filter(
+      (handler) => !handler.resolverClassMetadata?.isAbstract
+    ),
+    readonlyArray.map((handler) => ({
+      name: handler.schemaName,
+      outputType: getOutputType(
+        handler.getReturnType(),
+        handler.returnTypeOptions
       ),
-    (inputType) =>
-      inputType?.fields
-        ? map(
-            (field) => ({
-              name: field.name,
-              type: getArgType(field.getType(), field.typeOptions),
-              description: field.description || '',
-            }),
-            inputType.fields
-          )
-        : [
-            {
-              name: param.name,
-              type: getArgType(param.getType(), param.typeOptions),
-              description: param.description || '',
-            },
-          ]
-  )();
+      description: handler.description || '',
+      args: getArgExports(handler.params),
+      deprecatedReason: handler.deprecationReason || '',
+    }))
+  );
+
+export const getArgExports = (arg?: ParamMetadata[]): ArgExport[] =>
+  pipe(
+    fromNullable(arg),
+    option.map(
+      chain((param) =>
+        param.kind === 'arg'
+          ? fromArgParamMetadata(param)
+          : param.kind === 'args'
+          ? fromArgsParamMetadata(param)
+          : []
+      )
+    ),
+    option.getOrElse(() => [] as ArgExport[])
+  );
 
 const fromArgsParamMetadata = (param: ArgsParamMetadata): ArgExport[] =>
   pipe(
-    () =>
-      find<ClassMetadata>(
-        (it) => it.target === param.getType(),
-        metadata.argumentTypes
-      ),
-    (argType) => argType?.fields || [],
-    map<FieldMetadata, ArgExport>((field) => ({
-      name: field.name,
-      type: getArgType(field.getType(), field.typeOptions),
-      description: field.description || '',
-    }))
-  )();
+    metadata.argumentTypes,
+    array.findFirst((it) => it.target === param.getType()),
+    option.chainNullableK((argType) => argType.fields),
+    option.match(
+      () => [],
+      array.map((field) => ({
+        name: field.name,
+        type: getArgType(field.getType(), field.typeOptions),
+        description: field.description || '',
+      }))
+    )
+  );
+
+const fromArgParamMetadata = (param: ArgParamMetadata): readonly ArgExport[] =>
+  pipe(
+    metadata.inputTypes,
+    array.findFirst((inputType) => inputType.target === param.getType()),
+    option.chainNullableK((inputType) => inputType.fields),
+    option.match(
+      () => [
+        {
+          name: param.name,
+          type: getArgType(param.getType(), param.typeOptions),
+          description: param.description || '',
+        },
+      ],
+      array.map((field) => ({
+        name: field.name,
+        type: getArgType(field.getType(), field.typeOptions),
+        description: field.description || '',
+      }))
+    )
+  );
