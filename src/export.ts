@@ -6,7 +6,6 @@ import {
 } from 'type-graphql/dist/metadata/definitions';
 import { pipe } from 'fp-ts/function';
 import { array, option, readonlyArray } from 'fp-ts';
-import { fromNullable } from 'fp-ts/Option';
 import { chain } from 'ramda';
 
 import { getArgType, getOutputType } from './get-types';
@@ -48,7 +47,7 @@ export const exportAPI = (
 
 export const getArgExports = (arg?: ParamMetadata[]): ArgExport[] =>
   pipe(
-    fromNullable(arg),
+    option.fromNullable(arg),
     option.map(
       chain((param) =>
         param.kind === 'arg'

@@ -1,10 +1,7 @@
 import { promises } from 'fs';
 import json2md from 'json2md';
-import { tuple, taskEither, array, option } from 'fp-ts';
+import { tuple, taskEither, array, option, console } from 'fp-ts';
 import { pipe } from 'fp-ts/function';
-import { log } from 'fp-ts/Console';
-import { fromPredicate } from 'fp-ts/Option';
-import { isEmpty } from 'fp-ts/Array';
 import { concat } from 'ramda';
 
 import { APIExport, exportAPI } from './export';
@@ -19,7 +16,10 @@ export const exportToMarkdown = (
     taskEither.map((file) =>
       file.write(makeMarkdown(title)).then(() => file.close())
     ),
-    taskEither.match(log('failed to generate'), log(`${fileName} generated`))
+    taskEither.match(
+      console.log('failed to generate'),
+      console.log(`${fileName} generated`)
+    )
   )();
 
 const makeMarkdown = (title: string): string =>
@@ -58,13 +58,13 @@ const apiToMd = (api: APIExport): json2md.DataObject[] => [
       option.of('description: ' + api.description),
       pipe(
         api.deprecatedReason,
-        fromPredicate((reason) => !!reason),
+        option.fromPredicate((reason) => !!reason),
         option.map(concat('deprecated: '))
       ),
-      isEmpty(api.args) ? option.none : option.of('arguments'),
+      array.isEmpty(api.args) ? option.none : option.of('arguments'),
     ]),
   },
-  isEmpty(api.args)
+  array.isEmpty(api.args)
     ? []
     : [
         {
